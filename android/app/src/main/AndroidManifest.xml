@@ -5,6 +5,8 @@
         android:label="lio_geolocation"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDR6kymHtN3m99pMWoHu7da2CHyD-6_3iQ" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

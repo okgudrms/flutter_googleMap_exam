@@ -93,7 +93,7 @@ class _RequestPermissionPageState extends State<RequestPermissionPage> {
   ///앱 설정을 실행시키는 함수.
   ///실행 완료 -> true, 실행 불가 -> false.
   Future<void> openAppSetting() async {
-    final a = await Geolocator.openLocationSettings();
-    print(a);
+    final bool result = await Geolocator.openLocationSettings();
+    print(result);
   }
 }

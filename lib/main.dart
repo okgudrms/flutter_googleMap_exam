@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lio_geolocation/google_map_page.dart';
 import 'package:lio_geolocation/location_page.dart';
 import 'package:lio_geolocation/request_permission_page.dart';
 
@@ -65,6 +66,18 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text(
                 "위치값 확인 페이지",
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const GoogleMapPage(),
+                  ),
+                );
+              },
+              child: const Text(
+                "구글맵 페이지",
               ),
             ),
           ],
