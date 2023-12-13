@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lio_geolocation/google_map_page.dart';
 import 'package:lio_geolocation/location_page.dart';
+import 'package:lio_geolocation/marker_page.dart';
 import 'package:lio_geolocation/request_permission_page.dart';
 
 void main() {
@@ -78,6 +79,18 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text(
                 "구글맵 페이지",
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const MarkerPage(),
+                  ),
+                );
+              },
+              child: const Text(
+                "마커 페이지",
               ),
             ),
           ],

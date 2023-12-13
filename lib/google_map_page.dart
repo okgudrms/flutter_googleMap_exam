@@ -1,7 +1,32 @@
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:lio_geolocation/custom_marker.dart';
+
+List<Map<String, dynamic>> data = [
+  {
+    'id': '1',
+    'globalKey': GlobalKey(),
+    'position': const LatLng(37.572621471425286, 126.99864596128465),
+    'widget': const CustomMarker(price: 100),
+  },
+  {
+    'id': '2',
+    'globalKey': GlobalKey(),
+    'position': const LatLng(38.572621471425286, 126.99864596128465),
+    'widget': const CustomMarker(price: 200),
+  },
+  {
+    'id': '3',
+    'globalKey': GlobalKey(),
+    'position': const LatLng(37.572621471425286, 125.99864596128465),
+    'widget': const CustomMarker(price: 300),
+  }
+];
 
 class GoogleMapPage extends StatefulWidget {
   const GoogleMapPage({super.key});
@@ -21,6 +46,8 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         .then((value) {
       newMapStyle = value;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onBuildCompleted());
+
     super.initState();
   }
 
@@ -37,6 +64,10 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     zoom: 19.151926040649414,
   );
 
+  bool _isLoaded = false;
+
+  final Map<String, Marker> _markers = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,16 +76,43 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           children: [
             Flexible(
               flex: 2,
-              child: GoogleMap(
-                key: _mapKey,
-                mapType: MapType.normal,
-                initialCameraPosition: _kAllMyTour,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
-                zoomControlsEnabled: false,
-                onTap: (argument) {},
-              ),
+              child: _isLoaded
+                  ? GoogleMap(
+                      key: _mapKey,
+                      mapType: MapType.normal,
+                      initialCameraPosition: _kAllMyTour,
+                      onMapCreated: (GoogleMapController controller) {
+                        _controller.complete(controller);
+                      },
+                      zoomControlsEnabled: false,
+                      myLocationEnabled: true,
+                      onTap: (LatLng argument) {},
+                      onCameraMoveStarted: () {
+                        print("카메라 이동 스타트");
+                      },
+                      onCameraMove: (CameraPosition position) {
+                        print("카메라 이동 : $position");
+                      },
+                      onCameraIdle: () {
+                        print("카메라 이동 ended");
+                      },
+                      markers: _markers.values.toSet(),
+                    )
+                  : ListView(
+                      children: [
+                        for (int i = 0; i < data.length; i++)
+                          Transform.translate(
+                            offset: Offset(
+                              -MediaQuery.of(context).size.width * 2,
+                              -MediaQuery.of(context).size.width,
+                            ),
+                            child: RepaintBoundary(
+                              key: data[i]['globalKey'],
+                              child: data[i]['widget'],
+                            ),
+                          )
+                      ],
+                    ),
             ),
             Flexible(
               flex: 1,
@@ -176,5 +234,36 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
     _showDialog(
         text:
             "지도 정중앙 데이터\nScreenCoordinate : $mapScreenCoordinate\nLatLng : $latLng\nZoomLevel : $zoomLevel\nVisibleRegion : $visibleRegion");
+  }
+
+  Future<void> _onBuildCompleted() async {
+    await Future.wait(data.map((e) async {
+      Marker customMarker = await _generateMakresFromWidgets(e);
+      _markers[customMarker.markerId.value] = customMarker;
+    }));
+    setState(() {
+      _isLoaded = true;
+    });
+  }
+
+  Future<Marker> _generateMakresFromWidgets(Map<String, dynamic> data) async {
+    RenderRepaintBoundary boundary = data['globalKey']
+        .currentContext
+        ?.findRenderObject() as RenderRepaintBoundary;
+
+    if (boundary.debugNeedsPaint) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      return _generateMakresFromWidgets(data);
+    }
+
+    ui.Image image = await boundary.toImage(pixelRatio: 2);
+    ByteData? byteData = await image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+
+    return Marker(
+        markerId: MarkerId(data['id']),
+        position: data['position'],
+        icon: BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List()));
   }
 }
