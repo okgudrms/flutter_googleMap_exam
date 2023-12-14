@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lio_geolocation/google_map_page.dart';
 import 'package:lio_geolocation/location_page.dart';
-import 'package:lio_geolocation/marker_page.dart';
+import 'package:lio_geolocation/marker_autocomplete_page.dart';
 import 'package:lio_geolocation/request_permission_page.dart';
 
 void main() {
@@ -85,12 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const MarkerPage(),
+                    builder: (context) => const MarkerAutoCompletePage(),
                   ),
                 );
               },
               child: const Text(
-                "마커 페이지",
+                "마커, 구글플레이스 자동완성 페이지",
               ),
             ),
           ],
