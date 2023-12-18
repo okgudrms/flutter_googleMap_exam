@@ -71,6 +71,7 @@ class _MarkerAutoCompletePageState extends State<MarkerAutoCompletePage> {
       body: SafeArea(
         child: Stack(
           children: [
+            //커스텀 마커를 이미지화하기 위해, 렌더링을 해야함. 유저 디바이스 화면에 안보이도록 배치.
             ListView(
               children: [
                 for (int i = 0; i < data.length; i++)
